@@ -15,11 +15,11 @@ A simple Flappy Bird game rendered entirely with ASCII characters. This project 
 
 ## :computer: Play Online
 
-This game is designed to be easily hosted on GitHub Pages. Click here to play the game!
+This game is designed to be easily hosted on GitHub Pages. Click [here](https://bellmano.github.io/FlappyASCII) to play the game!
 
 ## :trophy: GIF from the gameplay
 
-<a href="https://github.com/bellmano"><img src="img/flappyascii.gif" width="70%" height="70%"></a>
+<a href="https://bellmano.github.io/FlappyASCII"><img src="img/flappyascii.gif" width="70%" height="70%"></a>
 
 ## :heart: Acknowledgments
 
