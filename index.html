@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <title>Flappy ASCII</title>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+    <link rel="icon" type="image/x-icon" href="img/favicon.jpg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="src/style.css"/>
+    <script src="src/flappyascii.js"></script>
+</head>
+
+<body>
+    <div class="container">
+        <button id="theme-toggle"><i class="fas fa-sun"></i></button>
+        <h1>Flappy ASCII</h1>
+        <h3>ASCII-based Flappy Bird game</h3>
+        
+        <div id="game-container">
+            <div id="game-screen"></div>
+        </div>
+        
+        <div class="instructions">
+            <h3>How to Play</h3>
+            <p>Press <strong>SPACE</strong> to make the bird flap its wings and fly upwards</p>
+            <p>Navigate the bird through the gaps between pipes to score points</p>
+            <p>If the bird hits a pipe or the ground, the game is over</p>
+            <p>Press <strong>R</strong> to restart after game over</p>
+        </div>
+        
+        <footer>
+            <p>&copy; <script>document.write(new Date().getFullYear())</script> Mattias Mälman / bellmano</p>
+        </footer>
+    </div>
+    
+    <script>
+        // Theme switching functionality
+        const themeToggle = document.getElementById('theme-toggle');
+        const htmlElement = document.documentElement;
+        
+        // Function to update the icon based on theme
+        function updateThemeIcon(theme) {
+            // Clear the button content
+            themeToggle.innerHTML = '';
+            
+            // Create the appropriate icon
+            const icon = document.createElement('i');
+            
+            // Use moon icon for light mode (to switch to dark) and sun icon for dark mode (to switch to light)
+            if (theme === 'light') {
+                icon.className = 'fas fa-moon'; // Moon icon for switching to dark mode
+            } else {
+                icon.className = 'fas fa-sun';  // Sun icon for switching to light mode
+            }
+            
+            // Add the icon to the button
+            themeToggle.appendChild(icon);
+        }
+        
+        // Function to toggle theme
+        function toggleTheme() {
+            const currentTheme = htmlElement.getAttribute('data-theme');
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            
+            // Update the theme
+            htmlElement.setAttribute('data-theme', newTheme);
+            
+            // Update the icon
+            updateThemeIcon(newTheme);
+            
+            // Store the theme preference in localStorage
+            localStorage.setItem('theme', newTheme);
+            
+            // Notify the game about the theme change
+            if (window.updateGameColors) {
+                window.updateGameColors();
+            }
+        }
+        
+        // Add event listener to the theme toggle button
+        themeToggle.addEventListener('click', toggleTheme);
+        
+        // Check for saved theme preference or use default
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            htmlElement.setAttribute('data-theme', savedTheme);
+            updateThemeIcon(savedTheme);
+        } else {
+            // Set initial icon based on the default theme in HTML
+            const initialTheme = htmlElement.getAttribute('data-theme');
+            updateThemeIcon(initialTheme);
+        }
+    </script>
+</body>
+</html>
