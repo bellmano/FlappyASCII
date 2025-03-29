@@ -9,7 +9,7 @@ const GRAVITY = 0.5;
 const FLAP_STRENGTH = -1.5;
 const PIPE_SPEED = 1;
 const PIPE_FREQUENCY = 20;  // Lower means more pipes
-const PIPE_GAP_SIZE = 8;
+const PIPE_GAP_SIZE = 5;
 const BIRD_X = 20;
 
 // Game characters - these can change based on theme
