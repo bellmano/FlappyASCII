@@ -19,7 +19,7 @@ This game is designed to be easily hosted on GitHub Pages. Click [here](https://
 
 ## :trophy: GIF from the gameplay
 
-<a href="https://bellmano.github.io/FlappyASCII"><img src="img/flappyascii.gif" width="70%" height="70%"></a>
+<a href="https://bellmano.github.io/FlappyASCII"><img height="auto" width="auto" src="img/flappyascii.gif"></a>
 
 ## :heart: Acknowledgments
 
