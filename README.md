@@ -1,5 +1,13 @@
 # :bird: Flappy ASCII
 
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=bellmano_FlappyASCII&metric=alert_status)](https://sonarcloud.io/summary/overall?id=bellmano_FlappyASCII)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=bellmano_FlappyASCII&metric=security_rating)](https://sonarcloud.io/summary/overall?id=bellmano_FlappyASCII)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=bellmano_FlappyASCII&metric=sqale_rating)](https://sonarcloud.io/summary/overall?id=bellmano_FlappyASCII)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=bellmano_FlappyASCII&metric=reliability_rating)](https://sonarcloud.io/summary/overall?id=bellmano_FlappyASCII)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=bellmano_FlappyASCII&metric=bugs)](https://sonarcloud.io/summary/overall?id=bellmano_FlappyASCII)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=bellmano_FlappyASCII&metric=vulnerabilities)](https://sonarcloud.io/summary/overall?id=bellmano_FlappyASCII)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=bellmano_FlappyASCII&metric=code_smells)](https://sonarcloud.io/summary/overall?id=bellmano_FlappyASCII)
+
 ## :scroll: Introduction
 A simple Flappy Bird game rendered entirely with ASCII characters. This project transforms the classic mobile game into a retro DOS-style experience, using only text characters to create the bird, pipes, and environment. The game features both dark and light modes, persistent high scores, and responsive design.
 
