@@ -106,8 +106,15 @@ class Bird {
 
 class Pipe {
     constructor(x) {
+        // Use crypto.getRandomValues for secure random number generation
+        const min = 8;
+        const max = SCREEN_HEIGHT - 8;
+        const range = max - min + 1;
+        const randomBuffer = new Uint32Array(1);
+        window.crypto.getRandomValues(randomBuffer);
+        const randomValue = randomBuffer[0] / (0xFFFFFFFF + 1); // Normalize to [0,1)
         this.x = x;
-        this.gap_y = Math.floor(Math.random() * (SCREEN_HEIGHT - 16)) + 8; // Random position between 8 and SCREEN_HEIGHT-8
+        this.gap_y = Math.floor(randomValue * range) + min; // Random position between 8 and SCREEN_HEIGHT-8
         this.passed = false;
     }
     
@@ -130,14 +137,11 @@ class Pipe {
     }
 }
 
-function drawGame(bird, pipes, score, gameStarted) {
-    // Create a 2D grid for the game
-    const grid = Array(SCREEN_HEIGHT).fill().map(() => Array(SCREEN_WIDTH).fill(EMPTY_CHAR));
-    
-    // Draw bird
+function drawBird(grid, bird) {
     grid[Math.floor(bird.y)][bird.x] = BIRD_CHAR;
-    
-    // Draw pipes
+}
+
+function drawPipes(grid, pipes) {
     for (const pipe of pipes) {
         for (let y = 0; y < SCREEN_HEIGHT - 1; y++) {
             if (y < pipe.gap_y - PIPE_GAP_SIZE / 2 || y > pipe.gap_y + PIPE_GAP_SIZE / 2) {
@@ -147,26 +151,30 @@ function drawGame(bird, pipes, score, gameStarted) {
             }
         }
     }
-    
-    // Draw ground
+}
+
+function drawGround(grid) {
     for (let x = 0; x < SCREEN_WIDTH; x++) {
         grid[SCREEN_HEIGHT - 1][x] = GROUND_CHAR;
     }
-    
-    // Draw score
+}
+
+function drawScore(grid, score) {
     const scoreText = `Score: ${score}`;
     for (let i = 0; i < scoreText.length && i < SCREEN_WIDTH; i++) {
         grid[0][i] = scoreText[i];
     }
-    
-    // Draw high score
+}
+
+function drawHighScore(grid) {
     const highScoreText = `High Score: ${highScore}`;
     const highScorePos = SCREEN_WIDTH - highScoreText.length;
     for (let i = 0; i < highScoreText.length && highScorePos + i < SCREEN_WIDTH; i++) {
         grid[0][highScorePos + i] = highScoreText[i];
     }
-    
-    // Draw instructions if game hasn't started
+}
+
+function drawInstructions(grid, gameStarted) {
     if (!gameStarted) {
         const instructions = "Press SPACE to start";
         const startPos = Math.floor((SCREEN_WIDTH - instructions.length) / 2);
@@ -176,8 +184,16 @@ function drawGame(bird, pipes, score, gameStarted) {
             }
         }
     }
-    
-    // Render the grid to the game screen
+}
+
+function drawGame(bird, pipes, score, gameStarted) {
+    const grid = Array(SCREEN_HEIGHT).fill().map(() => Array(SCREEN_WIDTH).fill(EMPTY_CHAR));
+    drawBird(grid, bird);
+    drawPipes(grid, pipes);
+    drawGround(grid);
+    drawScore(grid, score);
+    drawHighScore(grid);
+    drawInstructions(grid, gameStarted);
     gameScreen.textContent = grid.map(row => row.join('')).join('\n');
 }
 
@@ -235,54 +251,54 @@ function resetGame() {
     gameStarted = false;
 }
 
+function addPipeIfNeeded() {
+    frameCounter++;
+    if (frameCounter % PIPE_FREQUENCY === 0) {
+        pipes.push(new Pipe(SCREEN_WIDTH - 1));
+    }
+}
+
+function updatePipesAndCheckCollisions() {
+    for (let i = pipes.length - 1; i >= 0; i--) {
+        const pipe = pipes[i];
+        pipe.update();
+
+        if (!pipe.passed && pipe.x < BIRD_X) {
+            pipe.passed = true;
+            score++;
+        }
+
+        if (pipe.isCollision(bird)) {
+            gameRunning = false;
+        }
+
+        if (pipe.isOffscreen()) {
+            pipes.splice(i, 1);
+        }
+    }
+}
+
+function checkGroundCollision() {
+    if (bird.y >= SCREEN_HEIGHT - 1) {
+        gameRunning = false;
+    }
+}
+
 function gameLoop(timestamp) {
-    // Control game speed
     if (timestamp - lastFrameTime < frameDelay) {
         animationFrameId = requestAnimationFrame(gameLoop);
         return;
     }
     lastFrameTime = timestamp;
-    
-    // Update bird
+
     bird.update(gameStarted);
-    
-    // Only update pipes and check collisions if game has started
+
     if (gameStarted) {
-        // Add new pipes
-        frameCounter++;
-        if (frameCounter % PIPE_FREQUENCY === 0) {
-            pipes.push(new Pipe(SCREEN_WIDTH - 1));
-        }
-        
-        // Update pipes and check for collisions
-        for (let i = pipes.length - 1; i >= 0; i--) {
-            const pipe = pipes[i];
-            pipe.update();
-            
-            // Check if bird passed the pipe
-            if (!pipe.passed && pipe.x < BIRD_X) {
-                pipe.passed = true;
-                score++;
-            }
-            
-            // Check for collisions
-            if (pipe.isCollision(bird)) {
-                gameRunning = false;
-            }
-            
-            // Remove off-screen pipes
-            if (pipe.isOffscreen()) {
-                pipes.splice(i, 1);
-            }
-        }
-        
-        // Check for collision with ground
-        if (bird.y >= SCREEN_HEIGHT - 1) {
-            gameRunning = false;
-        }
+        addPipeIfNeeded();
+        updatePipesAndCheckCollisions();
+        checkGroundCollision();
     }
-    
-    // Draw everything
+
     if (gameRunning) {
         drawGame(bird, pipes, score, gameStarted);
         animationFrameId = requestAnimationFrame(gameLoop);
