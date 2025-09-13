@@ -1,7 +1,3 @@
-/**
- * Flappy ASCII - A simple ASCII-based Flappy Bird game for the web
- */
-
 // Game constants
 const SCREEN_WIDTH = 90;
 const SCREEN_HEIGHT = 28;
@@ -354,3 +350,58 @@ function init() {
 
 // Start the game when the page loads
 window.addEventListener('load', init);
+
+// Export for Jest/node testing
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        Bird,
+        Pipe,
+        SCREEN_WIDTH,
+        SCREEN_HEIGHT,
+        GRAVITY,
+        FLAP_STRENGTH,
+        PIPE_SPEED,
+        PIPE_FREQUENCY,
+        PIPE_GAP_SIZE,
+        BIRD_X,
+        get BIRD_CHAR() { return BIRD_CHAR; },
+        get PIPE_CHAR() { return PIPE_CHAR; },
+        get GROUND_CHAR() { return GROUND_CHAR; },
+        get EMPTY_CHAR() { return EMPTY_CHAR; },
+        updateGameColors,
+        drawGame,
+        drawBird,
+        drawPipes,
+        drawGround,
+        drawScore,
+        drawHighScore,
+        drawInstructions,
+        resetGame,
+        addPipeIfNeeded,
+        updatePipesAndCheckCollisions,
+        checkGroundCollision,
+        gameOverScreen,
+        // Expose game state for tests
+        get bird() { return bird; },
+        get pipes() { return pipes; },
+        get score() { return score; },
+        get highScore() { return highScore; },
+        get frameCounter() { return frameCounter; },
+        get gameRunning() { return gameRunning; },
+        get gameStarted() { return gameStarted; },
+        set bird(val) { bird = val; },
+        set pipes(val) { pipes = val; },
+        set score(val) { score = val; },
+        set highScore(val) { highScore = val; },
+        set frameCounter(val) { frameCounter = val; },
+        set gameRunning(val) { gameRunning = val; },
+        set gameStarted(val) { gameStarted = val; },
+        get gameScreen() { return gameScreen; },
+        set gameScreen(val) {
+            gameScreen = val;
+            if (typeof global !== 'undefined') {
+                global.gameScreen = val;
+            }
+        },
+    };
+}
