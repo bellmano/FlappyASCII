@@ -1,12 +1,12 @@
 # :bird: Flappy ASCII
 
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=bellmano_FlappyASCII&metric=coverage)](https://sonarcloud.io/summary/overall?id=bellmano_FlappyASCII)
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=bellmano_FlappyASCII&metric=security_rating)](https://sonarcloud.io/summary/overall?id=bellmano_FlappyASCII)
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=bellmano_FlappyASCII&metric=sqale_rating)](https://sonarcloud.io/summary/overall?id=bellmano_FlappyASCII)
 [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=bellmano_FlappyASCII&metric=reliability_rating)](https://sonarcloud.io/summary/overall?id=bellmano_FlappyASCII)
 [![Bugs](https://sonarcloud.io/api/project_badges/measure?project=bellmano_FlappyASCII&metric=bugs)](https://sonarcloud.io/summary/overall?id=bellmano_FlappyASCII)
 [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=bellmano_FlappyASCII&metric=vulnerabilities)](https://sonarcloud.io/summary/overall?id=bellmano_FlappyASCII)
 [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=bellmano_FlappyASCII&metric=code_smells)](https://sonarcloud.io/summary/overall?id=bellmano_FlappyASCII)
-[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=bellmano_FlappyASCII&metric=sqale_index)](https://sonarcloud.io/summary/overall?id=bellmano_FlappyASCII)
 
 ## :scroll: Introduction
 A simple Flappy Bird game rendered entirely with ASCII characters. This project transforms the classic mobile game into a retro DOS-style experience, using only text characters to create the bird, pipes, and environment. The game features both dark and light modes, persistent high scores, and responsive design.
@@ -21,13 +21,26 @@ A simple Flappy Bird game rendered entirely with ASCII characters. This project 
 - Press **R** to restart after game over
 - Try to beat your high score, which persists between sessions
 
-## :computer: Play Online
-
-This game is designed to be easily hosted on GitHub Pages. Click [here](https://bellmano.github.io/FlappyASCII) to play the game!
-
 ## :trophy: GIF from the gameplay
 
 <a href="https://bellmano.github.io/FlappyASCII"><img height="auto" width="auto" src="img/flappyascii.gif"></a>
+
+This game is designed to be easily hosted on GitHub Pages. Click [here](https://bellmano.github.io/FlappyASCII) to play the game!
+
+## :test_tube: Running Tests
+
+To run the tests and view coverage:
+
+1. Install the required dev dependency:
+	```powershell
+	npm install
+	```
+2. Run the test coverage script:
+	```powershell
+	npm run test:coverage
+	```
+
+This will execute the tests and generate a coverage report.
 
 ## :heart: Acknowledgments
 
