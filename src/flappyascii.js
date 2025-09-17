@@ -175,6 +175,7 @@ function drawInstructions(grid, gameStarted) {
         const instructions = "Press SPACE to start";
         const startPos = Math.floor((SCREEN_WIDTH - instructions.length) / 2);
         for (let i = 0; i < instructions.length; i++) {
+            /* istanbul ignore next -- startPos is never negative with current constants */
             if (startPos + i >= 0 && startPos + i < SCREEN_WIDTH) {
                 grid[2][startPos + i] = instructions[i];
             }
@@ -356,6 +357,7 @@ function init() {
 window.addEventListener('load', init);
 
 // Export for Jest/node testing
+/* istanbul ignore next -- in Jest/Node, module.exports is always defined; browser path exercised via runtime */
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = {
         Bird,
@@ -386,6 +388,7 @@ if (typeof module !== 'undefined' && module.exports) {
         checkGroundCollision,
         gameOverScreen,
         gameLoop,
+        init,
         // Expose game state for tests
         get bird() { return bird; },
         get pipes() { return pipes; },
