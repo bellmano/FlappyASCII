@@ -427,4 +427,172 @@ describe('Coverage Tests', () => {
 		logSpy.mockRestore();
 		errorSpy.mockRestore();
 	});
+	
+	test('drawGame writes to gameScreen.textContent when present', () => {
+		// Arrange: mock gameScreen
+		const mockElement = { textContent: '' };
+		flappyascii.gameScreen = mockElement;
+
+		// Act: draw game explicitly
+		const bird = new flappyascii.Bird(10);
+		flappyascii.drawGame(bird, [], 3, false);
+
+		// Assert
+		expect(mockElement.textContent).toContain('Score: 3');
+	});
+
+	test('gameLoop early return schedules next frame', () => {
+		// Arrange
+		const originalRAF = global.requestAnimationFrame;
+		global.requestAnimationFrame = jest.fn();
+		flappyascii.gameRunning = true;
+		flappyascii.lastFrameTime = 200;
+
+		// Act: only 50ms elapsed (< frameDelay 100)
+		flappyascii.gameLoop(250);
+
+		// Assert: early return path executed
+		expect(global.requestAnimationFrame).toHaveBeenCalledWith(expect.any(Function));
+
+		// Cleanup
+		global.requestAnimationFrame = originalRAF;
+	});
+
+	test('init() runs and initializes when game-screen exists', () => {
+		jest.isolateModules(() => {
+			// Fresh DOM with game-screen element
+			const { JSDOM } = require('jsdom');
+			const dom = new JSDOM('<!DOCTYPE html><html><body><div id="game-screen"></div></body></html>');
+			global.window = dom.window;
+			global.document = dom.window.document;
+
+			const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+			const savedRAF = global.requestAnimationFrame;
+			global.requestAnimationFrame = jest.fn();
+
+			// Ensure game-screen is found
+			const originalGet = document.getElementById;
+			const mockEl = { textContent: '' };
+			document.getElementById = jest.fn().mockReturnValue(mockEl);
+
+			// Require module and call init directly
+			const mod = require('../src/flappyascii.js');
+			mod.init();
+
+			// Assertions: helper exposed and drawGame wrote to gameScreen
+			expect(typeof window.updateGameColors).toBe('function');
+			expect(mod.gameScreen).toBeTruthy();
+			expect(mod.gameScreen.textContent).toContain('Score: 0');
+			expect(global.requestAnimationFrame).toHaveBeenCalledWith(expect.any(Function));
+
+			// Cleanup
+			global.requestAnimationFrame = savedRAF;
+			document.getElementById = originalGet;
+			errorSpy.mockRestore();
+		});
+	});
+
+	test('init() logs error when game-screen is missing', () => {
+		jest.isolateModules(() => {
+			const { JSDOM } = require('jsdom');
+			const dom = new JSDOM('<!DOCTYPE html><html><body><div id="other"></div></body></html>');
+			global.window = dom.window;
+			global.document = dom.window.document;
+
+			const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+			// Ensure RAF exists to avoid ReferenceError if any path uses it
+			const savedRAFGlobal = global.requestAnimationFrame;
+			const savedRAFWindow = window.requestAnimationFrame;
+			const rafMock = jest.fn();
+			global.requestAnimationFrame = rafMock;
+			window.requestAnimationFrame = rafMock;
+
+			// Require module and trigger load
+			require('../src/flappyascii.js');
+			window.dispatchEvent(new window.Event('load'));
+
+			expect(errorSpy).toHaveBeenCalledWith('Game screen element not found!');
+
+			// Cleanup
+			global.requestAnimationFrame = savedRAFGlobal;
+			window.requestAnimationFrame = savedRAFWindow;
+			errorSpy.mockRestore();
+		});
+	});
+
+	test('gameLoop executes started branch (pipes update/check)', () => {
+		// Arrange
+		const originalRAF = global.requestAnimationFrame;
+		global.requestAnimationFrame = jest.fn();
+		flappyascii.resetGame();
+		flappyascii.gameStarted = true; // trigger started branch
+		flappyascii.lastFrameTime = 0;
+
+		// Add a pipe to exercise update/removal logic
+		flappyascii.pipes = [new flappyascii.Pipe(flappyascii.SCREEN_WIDTH - 2)];
+
+		// Act
+		flappyascii.gameLoop(500); // enough time passed
+
+		// Assert
+		expect(flappyascii.lastFrameTime).toBe(500);
+		expect(global.requestAnimationFrame).toHaveBeenCalledWith(expect.any(Function));
+
+		// Cleanup
+		global.requestAnimationFrame = originalRAF;
+	});
+
+	test("pressing 'r' schedules next frame when restarting", () => {
+		const originalRAF = global.requestAnimationFrame;
+		global.requestAnimationFrame = jest.fn();
+
+		flappyascii.resetGame();
+		flappyascii.gameRunning = false; // ensure restart path
+
+		const rEvent = new KeyboardEvent('keydown', { key: 'r' });
+		document.dispatchEvent(rEvent);
+
+		expect(global.requestAnimationFrame).toHaveBeenCalledWith(expect.any(Function));
+
+		global.requestAnimationFrame = originalRAF;
+	});
+
+	test('gameLoop else branch calls gameOverScreen', () => {
+		const originalRAF = global.requestAnimationFrame;
+		global.requestAnimationFrame = jest.fn();
+
+		const mockEl = { textContent: '' };
+		flappyascii.gameScreen = mockEl;
+		flappyascii.gameRunning = false; // force else branch
+		flappyascii.lastFrameTime = 0; // ensure enough time passes
+		flappyascii.score = 12;
+
+		flappyascii.gameLoop(200);
+
+		expect(mockEl.textContent).toContain('GAME OVER');
+		expect(mockEl.textContent).toContain('Final Score: 12');
+
+		global.requestAnimationFrame = originalRAF;
+	});
+
+	test('frameCounter getter and bird setter are usable', () => {
+		// Read getter to cover it
+		// eslint-disable-next-line no-unused-expressions
+		const _fc = flappyascii.frameCounter;
+		expect(typeof _fc).toBe('number');
+		// Use setter for bird
+		const newBird = new flappyascii.Bird(5);
+		flappyascii.bird = newBird;
+		expect(flappyascii.bird.x).toBe(flappyascii.BIRD_X);
+	});
+
+	test('gameOverScreen writes to gameScreen when present', () => {
+		const mockEl = { textContent: '' };
+		flappyascii.gameScreen = mockEl;
+		flappyascii.highScore = 0;
+		flappyascii.gameOverScreen(7);
+		expect(mockEl.textContent).toContain('GAME OVER');
+		expect(mockEl.textContent).toContain('Final Score: 7');
+	});
 });

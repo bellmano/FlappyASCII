@@ -386,6 +386,7 @@ if (typeof module !== 'undefined' && module.exports) {
         checkGroundCollision,
         gameOverScreen,
         gameLoop,
+        init,
         // Expose game state for tests
         get bird() { return bird; },
         get pipes() { return pipes; },
