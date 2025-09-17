@@ -32,7 +32,7 @@ function updateGameColors() {
     }
     
     // If the game is already running, redraw it with the new colors
-    if (gameRunning) {
+    if (gameRunning && gameScreen) {
         drawGame(bird, pipes, score, gameStarted);
     }
 }
@@ -190,7 +190,9 @@ function drawGame(bird, pipes, score, gameStarted) {
     drawScore(grid, score);
     drawHighScore(grid);
     drawInstructions(grid, gameStarted);
-    gameScreen.textContent = grid.map(row => row.join('')).join('\n');
+    if (gameScreen) {
+        gameScreen.textContent = grid.map(row => row.join('')).join('\n');
+    }
 }
 
 function gameOverScreen(score) {
@@ -235,7 +237,9 @@ function gameOverScreen(score) {
     }
     
     // Render the grid to the game screen
-    gameScreen.textContent = grid.map(row => row.join('')).join('\n');
+    if (gameScreen) {
+        gameScreen.textContent = grid.map(row => row.join('')).join('\n');
+    }
 }
 
 function resetGame() {
@@ -381,6 +385,7 @@ if (typeof module !== 'undefined' && module.exports) {
         updatePipesAndCheckCollisions,
         checkGroundCollision,
         gameOverScreen,
+        gameLoop,
         // Expose game state for tests
         get bird() { return bird; },
         get pipes() { return pipes; },
@@ -389,6 +394,7 @@ if (typeof module !== 'undefined' && module.exports) {
         get frameCounter() { return frameCounter; },
         get gameRunning() { return gameRunning; },
         get gameStarted() { return gameStarted; },
+        get lastFrameTime() { return lastFrameTime; },
         set bird(val) { bird = val; },
         set pipes(val) { pipes = val; },
         set score(val) { score = val; },
@@ -396,6 +402,7 @@ if (typeof module !== 'undefined' && module.exports) {
         set frameCounter(val) { frameCounter = val; },
         set gameRunning(val) { gameRunning = val; },
         set gameStarted(val) { gameStarted = val; },
+        set lastFrameTime(val) { lastFrameTime = val; },
         get gameScreen() { return gameScreen; },
         set gameScreen(val) {
             gameScreen = val;
