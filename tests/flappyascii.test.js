@@ -63,17 +63,20 @@ describe('Main Exports', () => {
 describe('Bird class', () => {
 	let flappyascii;
 	beforeAll(() => { flappyascii = require('../src/flappyascii.js'); });
+
 	test('constructor bounds', () => {
 		const b1 = new flappyascii.Bird(-10);
 		expect(b1.y).toBeGreaterThanOrEqual(1);
 		const b2 = new flappyascii.Bird(flappyascii.SCREEN_HEIGHT + 10);
 		expect(b2.y).toBeLessThan(flappyascii.SCREEN_HEIGHT);
 	});
+
 	test('flap sets velocity', () => {
 		const bird = new flappyascii.Bird(10);
 		bird.flap();
 		expect(bird.velocity).toBe(flappyascii.FLAP_STRENGTH);
 	});
+
 	test('update applies gravity and bounds', () => {
 		const bird = new flappyascii.Bird(1);
 		bird.velocity = -10;
@@ -83,11 +86,13 @@ describe('Bird class', () => {
 		bird.update(true);
 		expect(bird.y).toBeLessThanOrEqual(flappyascii.SCREEN_HEIGHT - 1);
 	});
+
 	test('update hovers when not started', () => {
 		const bird = new flappyascii.Bird(10);
 		bird.update(false);
 		expect(Math.abs(bird.y - Math.floor(flappyascii.SCREEN_HEIGHT / 2))).toBeLessThanOrEqual(1);
 	});
+
 	test('animation direction changes when offset exceeds limit', () => {
 		const bird = new flappyascii.Bird(10);
 		bird.animationOffset = 0.6; // Greater than 0.5
@@ -100,17 +105,20 @@ describe('Bird class', () => {
 describe('Pipe class', () => {
 	let flappyascii;
 	beforeAll(() => { flappyascii = require('../src/flappyascii.js'); });
+
 	test('constructor randomizes gap_y in bounds', () => {
 		const pipe = new flappyascii.Pipe(50);
 		expect(pipe.gap_y).toBeGreaterThanOrEqual(8);
 		expect(pipe.gap_y).toBeLessThanOrEqual(flappyascii.SCREEN_HEIGHT - 8);
 	});
+
 	test('update moves pipe left', () => {
 		const pipe = new flappyascii.Pipe(50);
 		const oldX = pipe.x;
 		pipe.update();
 		expect(pipe.x).toBeLessThan(oldX);
 	});
+
 	test('isCollision detects collision', () => {
 		const pipe = new flappyascii.Pipe(flappyascii.BIRD_X);
 		const bird = new flappyascii.Bird(pipe.gap_y - flappyascii.PIPE_GAP_SIZE);
@@ -119,6 +127,7 @@ describe('Pipe class', () => {
 		bird.y = pipe.gap_y;
 		expect(pipe.isCollision(bird)).toBe(false);
 	});
+
 	test('isOffscreen returns true when x < 0', () => {
 		const pipe = new flappyascii.Pipe(-1);
 		expect(pipe.isOffscreen()).toBe(true);
@@ -129,6 +138,7 @@ describe('Game Logic Functions', () => {
 	let flappyascii;
 	beforeAll(() => { flappyascii = require('../src/flappyascii.js'); });
 	beforeEach(() => { flappyascii.resetGame(); });
+
 	test('resetGame initializes game state', () => {
 		flappyascii.resetGame();
 		expect(flappyascii.bird).toBeDefined();
@@ -137,11 +147,13 @@ describe('Game Logic Functions', () => {
 		expect(flappyascii.gameRunning).toBe(true);
 		expect(flappyascii.gameStarted).toBe(false);
 	});
+
 	test('addPipeIfNeeded adds pipe at correct frame', () => {
 		flappyascii.frameCounter = flappyascii.PIPE_FREQUENCY - 1;
 		flappyascii.addPipeIfNeeded();
 		expect(flappyascii.pipes.length).toBe(1);
 	});
+
 	test('updatePipesAndCheckCollisions increments score and removes offscreen pipes', () => {
 		const pipe = new flappyascii.Pipe(flappyascii.BIRD_X - 1);
 		pipe.passed = false;
@@ -154,6 +166,7 @@ describe('Game Logic Functions', () => {
 		flappyascii.updatePipesAndCheckCollisions();
 		expect(flappyascii.pipes.length).toBe(0);
 	});
+
 	test('checkGroundCollision sets gameRunning false if bird hits ground', () => {
 		flappyascii.bird.y = flappyascii.SCREEN_HEIGHT - 1;
 		flappyascii.checkGroundCollision();
@@ -164,6 +177,7 @@ describe('Game Logic Functions', () => {
 describe('Drawing Functions', () => {
 	let flappyascii;
 	beforeAll(() => { flappyascii = require('../src/flappyascii.js'); });
+
 	test('drawBird places bird char', () => {
 		const grid = Array(flappyascii.SCREEN_HEIGHT).fill().map(() => Array(flappyascii.SCREEN_WIDTH).fill(flappyascii.EMPTY_CHAR));
 		flappyascii.drawBird(grid, new flappyascii.Bird(10));
@@ -171,6 +185,7 @@ describe('Drawing Functions', () => {
 		const found = grid.some(row => row.includes(flappyascii.BIRD_CHAR));
 		expect(found).toBe(true);
 	});
+	
 	test('drawPipes places pipe chars', () => {
 		const pipe = new flappyascii.Pipe(10);
 		const pipes = [pipe];
@@ -184,6 +199,25 @@ describe('Drawing Functions', () => {
 		}
 		expect(found).toBe(true);
 	});
+
+	test('drawPipes respects screen bounds and does not draw offscreen', () => {
+		const leftOff = new flappyascii.Pipe(-1); // offscreen to the left
+		const rightOff = new flappyascii.Pipe(flappyascii.SCREEN_WIDTH + 1); // offscreen to the right
+		const onEdge = new flappyascii.Pipe(flappyascii.SCREEN_WIDTH - 1); // on the rightmost visible column
+		const pipes = [leftOff, rightOff, onEdge];
+		const grid = Array(flappyascii.SCREEN_HEIGHT).fill().map(() => Array(flappyascii.SCREEN_WIDTH).fill(flappyascii.EMPTY_CHAR));
+		flappyascii.drawPipes(grid, pipes);
+		// Verify nothing was drawn for offscreen pipes but something for the on-edge pipe
+		let offscreenDrawn = false;
+		let onEdgeDrawn = false;
+		for (let y = 0; y < flappyascii.SCREEN_HEIGHT - 1; y++) {
+			if (grid[y][0] === flappyascii.PIPE_CHAR && Math.floor(leftOff.x) === 0) offscreenDrawn = true;
+			if (grid[y][flappyascii.SCREEN_WIDTH - 1] === flappyascii.PIPE_CHAR) onEdgeDrawn = true;
+		}
+		expect(offscreenDrawn).toBe(false);
+		expect(onEdgeDrawn).toBe(true);
+	});
+
 	test('drawGround places ground chars', () => {
 		const grid = Array(flappyascii.SCREEN_HEIGHT).fill().map(() => Array(flappyascii.SCREEN_WIDTH).fill(flappyascii.EMPTY_CHAR));
 		flappyascii.drawGround(grid);
@@ -191,17 +225,20 @@ describe('Drawing Functions', () => {
 			expect(grid[flappyascii.SCREEN_HEIGHT - 1][x]).toBe(flappyascii.GROUND_CHAR);
 		}
 	});
+
 	test('drawScore writes score', () => {
 		const grid = Array(flappyascii.SCREEN_HEIGHT).fill().map(() => Array(flappyascii.SCREEN_WIDTH).fill(flappyascii.EMPTY_CHAR));
 		flappyascii.drawScore(grid, 42);
 		expect(grid[0].join('')).toContain('Score: 42');
 	});
+
 	test('drawHighScore writes high score', () => {
 		flappyascii.highScore = 99;
 		const grid = Array(flappyascii.SCREEN_HEIGHT).fill().map(() => Array(flappyascii.SCREEN_WIDTH).fill(flappyascii.EMPTY_CHAR));
 		flappyascii.drawHighScore(grid);
 		expect(grid[0].join('')).toContain('High Score: 99');
 	});
+
 	test('drawInstructions writes instructions when not started', () => {
 		const grid = Array(flappyascii.SCREEN_HEIGHT).fill().map(() => Array(flappyascii.SCREEN_WIDTH).fill(flappyascii.EMPTY_CHAR));
 		flappyascii.drawInstructions(grid, false);
@@ -211,6 +248,7 @@ describe('Drawing Functions', () => {
 describe('Theme and Character Updates', () => {
 	let flappyascii;
 	beforeAll(() => { flappyascii = require('../src/flappyascii.js'); });
+
 	test('updateGameColors sets dark theme characters', () => {
 		document.documentElement.setAttribute('data-theme', 'dark');
 		flappyascii.updateGameColors();
@@ -219,6 +257,7 @@ describe('Theme and Character Updates', () => {
 		expect(flappyascii.GROUND_CHAR).toBe('═');
 		expect(flappyascii.EMPTY_CHAR).toBe(' ');
 	});
+
 	test('updateGameColors sets light theme characters', () => {
 		document.documentElement.setAttribute('data-theme', 'light');
 		flappyascii.updateGameColors();
@@ -231,12 +270,14 @@ describe('Theme and Character Updates', () => {
 describe('Game Over Screen', () => {
 	let flappyascii;
 	beforeAll(() => { flappyascii = require('../src/flappyascii.js'); });
+
 	test('gameOverScreen updates high score and renders', () => {
 		flappyascii.highScore = 0;
 		flappyascii.score = 10;
 		flappyascii.gameOverScreen(10);
 		expect(flappyascii.highScore).toBe(10);
 	});
+
 	test('gameOverScreen does not update high score if lower', () => {
 		flappyascii.highScore = 20;
 		flappyascii.score = 10;
@@ -253,6 +294,16 @@ describe('Game Logic Functions - Additional Tests', () => {
 		flappyascii.frameCounter = 1;
 		flappyascii.addPipeIfNeeded();
 		expect(flappyascii.pipes.length).toBe(0);
+	});
+
+	test('addPipeIfNeeded adds only on exact multiples of frequency', () => {
+		// set up so next call is not a multiple then is a multiple
+		flappyascii.resetGame();
+		flappyascii.frameCounter = flappyascii.PIPE_FREQUENCY - 2;
+		flappyascii.addPipeIfNeeded(); // counter becomes freq-1, not adding
+		expect(flappyascii.pipes.length).toBe(0);
+		flappyascii.addPipeIfNeeded(); // counter becomes freq, adding
+		expect(flappyascii.pipes.length).toBe(1);
 	});
 
 	test('updatePipesAndCheckCollisions sets gameRunning false on collision', () => {
@@ -372,6 +423,62 @@ describe('Coverage Tests', () => {
 		document.dispatchEvent(new KeyboardEvent('keydown', { key: 'a' }));
 		expect(flappyascii.gameRunning).toBe(initialState.gameRunning);
 		expect(flappyascii.gameStarted).toBe(initialState.gameStarted);
+
+		// Space when gameRunning is false should not flap
+		flappyascii.gameRunning = false;
+		flappyascii.bird.velocity = 0;
+		const spaceWhileStopped = new KeyboardEvent('keydown', { code: 'Space' });
+		Object.defineProperty(spaceWhileStopped, 'preventDefault', { value: jest.fn() });
+		document.dispatchEvent(spaceWhileStopped);
+		expect(flappyascii.bird.velocity).toBe(0);
+
+		// Test Space key when game is already started and running keeps started=true and flaps
+		flappyascii.gameStarted = true;
+		flappyascii.gameRunning = true;
+		flappyascii.bird.velocity = 0;
+		const evt = new KeyboardEvent('keydown', { code: 'Space' });
+		Object.defineProperty(evt, 'preventDefault', { value: jest.fn() });
+		document.dispatchEvent(evt);
+		expect(flappyascii.gameStarted).toBe(true);
+		expect(flappyascii.bird.velocity).toBe(flappyascii.FLAP_STRENGTH);
+	});
+
+	test('init() loads saved high score when present', () => {
+		jest.isolateModules(() => {
+			const { JSDOM } = require('jsdom');
+			const dom = new JSDOM('<!DOCTYPE html><html><body><div id="game-screen"></div></body></html>');
+			global.window = dom.window;
+			global.document = dom.window.document;
+			global.requestAnimationFrame = jest.fn();
+			// seed localStorage
+			localStorage.setItem('flappyBirdHighScore', '123');
+			const mod = require('../src/flappyascii.js');
+			// stub getElementById to ensure element exists
+			const originalGet = document.getElementById;
+			document.getElementById = jest.fn().mockReturnValue({ textContent: '' });
+			mod.init();
+			expect(mod.highScore).toBe(123);
+			document.getElementById = originalGet;
+		});
+	});
+
+	test('init() when no saved high score keeps default', () => {
+		jest.isolateModules(() => {
+			const { JSDOM } = require('jsdom');
+			const dom = new JSDOM('<!DOCTYPE html><html><body><div id="game-screen"></div></body></html>');
+			global.window = dom.window;
+			global.document = dom.window.document;
+			global.requestAnimationFrame = jest.fn();
+			// Ensure localStorage has no saved value
+			if (typeof localStorage.clear === 'function') localStorage.clear();
+			const mod = require('../src/flappyascii.js');
+			// stub getElementById to ensure element exists
+			const originalGet = document.getElementById;
+			document.getElementById = jest.fn().mockReturnValue({ textContent: '' });
+			mod.init();
+			expect(mod.highScore).toBe(0);
+			document.getElementById = originalGet;
+		});
 	});
 
 	test('complete coverage - initialization and module exports', () => {
