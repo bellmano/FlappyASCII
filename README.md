@@ -8,7 +8,6 @@
 [![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=bellmano_FlappyASCII&metric=vulnerabilities)](https://sonarcloud.io/summary/overall?id=bellmano_FlappyASCII)
 [![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=bellmano_FlappyASCII&metric=code_smells)](https://sonarcloud.io/summary/overall?id=bellmano_FlappyASCII)
 
-## :scroll: Introduction
 A simple Flappy Bird game rendered entirely with ASCII characters. This project transforms the classic mobile game into a retro DOS-style experience, using only text characters to create the bird, pipes, and environment. The game features both dark and light modes, persistent high scores, and responsive design.
 
 ## :video_game: How to Play
