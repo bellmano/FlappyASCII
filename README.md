@@ -46,3 +46,12 @@ This will execute the tests and generate a coverage report.
 This project was inspired by the original Flappy Bird game created by Dong Nguyen. The ASCII rendering approach pays homage to classic DOS-era games while bringing the addictive gameplay of Flappy Bird to a new format.
 
 Enjoy this retro-style version of the classic Flappy Bird game!
+
+## :mega: Issues or Suggestions
+Any issues or suggestions, please [create an issue on Github](https://github.com/bellmano/FlappyASCII/issues).
+
+## :coffee: Buy me a coffee
+Donations are welcome to appreciate my work to keep this addon alive, but isn't required at all.
+
+<!-- PayPal icon/button is used from this GitHub repo: https://github.com/andreostrovsky/donate-with-paypal -->
+<a href="https://www.paypal.me/bellmano1"><img src="img/paypal.svg" height="50"></a>
