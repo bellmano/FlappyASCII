@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "type": "msedge",
+            "type": "chrome",
             "request": "launch",
             "name": "Launch Website",
             "file": "${workspaceFolder}/index.html"
