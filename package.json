@@ -13,7 +13,8 @@
   "jest": {
     "testEnvironment": "jsdom",
     "collectCoverageFrom": [
-      "src/flappyascii.js"
+      "src/flappyascii.js",
+      "src/script.js"
     ],
     "coverageDirectory": "coverage",
     "coverageReporters": ["text", "lcov", "html"],
