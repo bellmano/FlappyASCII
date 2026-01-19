@@ -8,12 +8,10 @@ describe('Theme switching script', () => {
             addEventListener: jest.fn(),
         };
 
-        let currentTheme = 'dark';
         const htmlElementMock = {
-            getAttribute: jest.fn(() => currentTheme),
-            setAttribute: jest.fn((key, value) => {
-                if (key === 'data-theme') currentTheme = value;
-            }),
+            dataset: {
+                theme: 'dark'
+            },
         };
 
         const documentWithCreateElement = {
@@ -67,10 +65,19 @@ describe('Theme switching script', () => {
         ).not.toThrow();
 
         // htmlElement=null early return
-        expect(() => script.initThemeToggle(themeToggleMock, null, documentWithCreateElement, localStorageMock, {})).not.toThrow();
+        // Use a non-nullish object without dataset, so the guard triggers
+        expect(() => script.initThemeToggle(themeToggleMock, {}, documentWithCreateElement, localStorageMock, {})).not.toThrow();
+
+        // toggleTheme() early return when dataset is missing
+        const updateIconSpy = jest.fn();
+        script.toggleTheme({}, updateIconSpy, localStorageMock, {});
+        expect(updateIconSpy).not.toHaveBeenCalled();
 
         // updateThemeIcon early return when btn is null
         expect(() => script.updateThemeIcon('dark', null, documentWithCreateElement)).not.toThrow();
+
+        // updateThemeIcon() branch where btn lookup falls through to null
+        expect(() => script.updateThemeIcon('dark', undefined, {})).not.toThrow();
 
         // document.createElement fallback branch
         const themeToggleNoDoc = { innerHTML: '', appendChild: jest.fn() };
@@ -84,10 +91,42 @@ describe('Theme switching script', () => {
         // Cover updateThemeIcon() branch where doc is null
         expect(() => script.updateThemeIcon('dark', undefined, null)).not.toThrow();
 
+        // Cover updateThemeIcon() branch where globalThis.document is nullish
+        const originalDocument = globalThis.document;
+        try {
+            globalThis.document = undefined;
+            expect(() => script.updateThemeIcon('dark', themeToggleMock, undefined)).not.toThrow();
+        } finally {
+            globalThis.document = originalDocument;
+        }
+
         // Cover initThemeToggle() branches where doc is null (btn lookup + documentElement fallback)
         expect(() => script.initThemeToggle(undefined, undefined, null, localStorageMock, windowWithUpdate)).not.toThrow();
 
-        document.documentElement.setAttribute('data-theme', 'dark');
+        // Cover initThemeToggle() branch where btn is resolved via doc.getElementById
+        const docWithButtonLookup = {
+            getElementById: jest.fn(() => themeToggleMock),
+            createElement: jest.fn(() => ({ className: '' })),
+            documentElement: { dataset: { theme: 'dark' } },
+        };
+        localStorageMock.getItem.mockReturnValueOnce(null);
+        script.initThemeToggle(undefined, undefined, docWithButtonLookup, localStorageMock, {});
+        expect(docWithButtonLookup.getElementById).toHaveBeenCalledWith('theme-toggle');
+
+        // Cover initThemeToggle() branch where htmlEl falls back to module-scoped htmlElement
+        localStorageMock.getItem.mockReturnValueOnce(null);
+        expect(() => script.initThemeToggle(undefined, undefined, {}, localStorageMock, {})).not.toThrow();
+
+        // Cover initThemeToggle() branch where globalThis.document is nullish (doc resolves to null)
+        const originalDocument2 = globalThis.document;
+        try {
+            globalThis.document = undefined;
+            expect(() => script.initThemeToggle(undefined, undefined, undefined, localStorageMock, undefined)).not.toThrow();
+        } finally {
+            globalThis.document = originalDocument2;
+        }
+
+        document.documentElement.dataset.theme = 'dark';
         localStorage.removeItem('theme');
         expect(() => script.toggleTheme()).not.toThrow();
     });

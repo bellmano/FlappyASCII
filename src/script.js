@@ -4,73 +4,65 @@ const htmlElement = typeof document !== 'undefined' ? document.documentElement :
 
 // Function to update the icon based on theme
 function updateThemeIcon(theme, themeToggleArg, documentArg) {
-    const doc = documentArg !== undefined
-        ? documentArg
-        : globalThis.document;
-    const btn = themeToggleArg !== undefined
-        ? themeToggleArg
-        : (doc && doc.getElementById ? doc.getElementById('theme-toggle') : null);
-    if (!btn || !doc) return;
-    btn.innerHTML = '';
-    const icon = doc.createElement ? doc.createElement('i') : { className: '' };
-    if (theme === 'light') {
-        icon.className = 'fas fa-moon';
-    } else {
-        icon.className = 'fas fa-sun';
+    const doc = documentArg ?? globalThis.document;
+    const btn = themeToggleArg ?? doc?.getElementById?.('theme-toggle');
+
+    if (btn && doc) {
+        btn.innerHTML = '';
+        const icon = doc?.createElement?.('i') ?? { className: '' };
+        icon.className = theme === 'light' ? 'fas fa-moon' : 'fas fa-sun';
+        btn.appendChild?.(icon);
     }
-    btn.appendChild(icon);
 }
 
 // Function to toggle theme
 function toggleTheme(htmlElementArg, updateThemeIconArg, localStorageArg, windowArg) {
-    const htmlEl = htmlElementArg !== undefined ? htmlElementArg : htmlElement;
-    const updateIcon = updateThemeIconArg !== undefined ? updateThemeIconArg : updateThemeIcon;
-    const ls = localStorageArg !== undefined ? localStorageArg : localStorage;
-    const win = windowArg !== undefined ? windowArg : window;
-    const currentTheme = htmlEl.getAttribute('data-theme');
+    const htmlEl = htmlElementArg ?? htmlElement;
+    const updateIcon = updateThemeIconArg ?? updateThemeIcon;
+    const ls = localStorageArg ?? globalThis.localStorage;
+    const runtime = windowArg ?? globalThis;
+
+    if (htmlEl?.dataset == null) return;
+
+    const currentTheme = htmlEl.dataset.theme;
     const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-    htmlEl.setAttribute('data-theme', newTheme);
+    htmlEl.dataset.theme = newTheme;
     updateIcon(newTheme);
-    ls.setItem('theme', newTheme);
-    if (win.updateGameColors) {
-        win.updateGameColors();
-    }
+    ls?.setItem?.('theme', newTheme);
+    runtime.updateGameColors?.();
 }
 
 function initThemeToggle(themeToggleArg, htmlElementArg, documentArg, localStorageArg, windowArg) {
-    const doc = documentArg !== undefined ? documentArg : document;
-    const btn = themeToggleArg !== undefined ? themeToggleArg : (doc && doc.getElementById ? doc.getElementById('theme-toggle') : null);
-    const htmlEl = htmlElementArg !== undefined ? htmlElementArg : (doc ? doc.documentElement : htmlElement);
-    const ls = localStorageArg !== undefined ? localStorageArg : localStorage;
-    const win = windowArg !== undefined ? windowArg : window;
+    const doc = documentArg ?? globalThis.document;
+    const btn = themeToggleArg ?? doc?.getElementById?.('theme-toggle');
+    const htmlEl = htmlElementArg ?? doc?.documentElement ?? htmlElement;
+    const ls = localStorageArg ?? globalThis.localStorage;
+    const runtime = windowArg ?? globalThis;
 
-    if (!htmlEl) return;
+    if (htmlEl?.dataset == null) return;
 
-    if (btn) {
-        btn.addEventListener('click', () => {
-            toggleTheme(htmlEl, (theme) => updateThemeIcon(theme, btn, doc), ls, win);
-        });
-    }
+    btn?.addEventListener?.('click', () => {
+        toggleTheme(htmlEl, (theme) => updateThemeIcon(theme, btn, doc), ls, runtime);
+    });
 
-    const savedTheme = ls.getItem('theme');
+    const savedTheme = ls?.getItem?.('theme');
     if (savedTheme) {
-        htmlEl.setAttribute('data-theme', savedTheme);
+        htmlEl.dataset.theme = savedTheme;
         updateThemeIcon(savedTheme, btn, doc);
-    } else {
-        const initialTheme = htmlEl.getAttribute('data-theme');
-        updateThemeIcon(initialTheme, btn, doc);
+        return;
     }
+
+    updateThemeIcon(htmlEl.dataset.theme, btn, doc);
 }
 
 // Run initialization automatically in browser contexts
 /* istanbul ignore next -- auto-run only in browser runtime */
 if (
-    typeof window !== 'undefined' &&
-    typeof document !== 'undefined' &&
-    typeof localStorage !== 'undefined'
+    typeof globalThis.document !== 'undefined' &&
+    typeof globalThis.localStorage !== 'undefined'
 ) {
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', () => initThemeToggle());
+    if (globalThis.document.readyState === 'loading') {
+        globalThis.document.addEventListener('DOMContentLoaded', () => initThemeToggle());
     } else {
         initThemeToggle();
     }
