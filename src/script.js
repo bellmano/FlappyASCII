@@ -1,6 +1,6 @@
 // Theme switching functionality
 /* istanbul ignore next -- in non-DOM environments, document is undefined */
-const htmlElement = typeof document !== 'undefined' ? document.documentElement : null;
+const htmlElement = globalThis.document?.documentElement ?? null;
 
 // Function to update the icon based on theme
 function updateThemeIcon(theme, themeToggleArg, documentArg) {
@@ -58,8 +58,8 @@ function initThemeToggle(themeToggleArg, htmlElementArg, documentArg, localStora
 // Run initialization automatically in browser contexts
 /* istanbul ignore next -- auto-run only in browser runtime */
 if (
-    typeof globalThis.document !== 'undefined' &&
-    typeof globalThis.localStorage !== 'undefined'
+    globalThis.document !== undefined &&
+    globalThis.localStorage !== undefined
 ) {
     if (globalThis.document.readyState === 'loading') {
         globalThis.document.addEventListener('DOMContentLoaded', () => initThemeToggle());
