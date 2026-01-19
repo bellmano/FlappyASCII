@@ -47,6 +47,10 @@ This project was inspired by the original Flappy Bird game created by Dong Nguye
 
 Enjoy this retro-style version of the classic Flappy Bird game!
 
+## :handshake: Contributing
+
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
 ## :mega: Issues or Suggestions
 Any issues or suggestions, please [create an issue on Github](https://github.com/bellmano/FlappyASCII/issues).
 
