@@ -16,7 +16,7 @@ let EMPTY_CHAR = ' ';
 
 // Function to update game characters based on theme
 function updateGameColors() {
-    const currentTheme = document.documentElement.getAttribute('data-theme');
+    const currentTheme = document.documentElement.dataset.theme;
     
     // In dark mode, we use different characters for better visibility on light background
     if (currentTheme === 'dark') {
@@ -184,7 +184,7 @@ function drawInstructions(grid, gameStarted) {
 }
 
 function drawGame(bird, pipes, score, gameStarted) {
-    const grid = Array(SCREEN_HEIGHT).fill().map(() => Array(SCREEN_WIDTH).fill(EMPTY_CHAR));
+    const grid = new Array(SCREEN_HEIGHT).fill().map(() => new Array(SCREEN_WIDTH).fill(EMPTY_CHAR));
     drawBird(grid, bird);
     drawPipes(grid, pipes);
     drawGround(grid);
@@ -198,7 +198,7 @@ function drawGame(bird, pipes, score, gameStarted) {
 
 function gameOverScreen(score) {
     // Create a blank screen
-    const grid = Array(SCREEN_HEIGHT).fill().map(() => Array(SCREEN_WIDTH).fill(EMPTY_CHAR));
+    const grid = new Array(SCREEN_HEIGHT).fill().map(() => new Array(SCREEN_WIDTH).fill(EMPTY_CHAR));
     
     // Update high score if current score is higher
     if (score > highScore) {
@@ -332,7 +332,7 @@ function init() {
     // Load high score from localStorage if available
     const savedHighScore = localStorage.getItem('flappyBirdHighScore');
     if (savedHighScore !== null) {
-        highScore = parseInt(savedHighScore, 10);
+        highScore = Number.parseInt(savedHighScore, 10);
     }
     
     // Only start the game if we found the game screen element
