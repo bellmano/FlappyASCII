@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "ASCII-based Flappy Bird game",
   "scripts": {
+    "dev": "vite",
     "test": "jest",
     "test:coverage": "jest --coverage",
     "format": "prettier --write .",
@@ -11,7 +12,8 @@
   "devDependencies": {
     "jest": "^30.5.2",
     "jest-environment-jsdom": "^30.5.2",
-    "prettier": "^3.9.9"
+    "prettier": "^3.9.9",
+    "vite": "^8.3.3"
   },
   "overrides": {
     "argparse": "^2.0.1"
