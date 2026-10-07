@@ -31,13 +31,13 @@ This game is designed to be easily hosted on GitHub Pages. Click [here](https://
 To run the tests and view coverage:
 
 1. Install the required dev dependency:
-	```powershell
-	npm install
-	```
+   ```powershell
+   npm install
+   ```
 2. Run the test coverage script:
-	```powershell
-	npm run test:coverage
-	```
+   ```powershell
+   npm run test:coverage
+   ```
 
 This will execute the tests and generate a coverage report.
 
@@ -52,9 +52,11 @@ Enjoy this retro-style version of the classic Flappy Bird game!
 Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ## :mega: Issues or Suggestions
+
 Any issues or suggestions, please [create an issue on Github](https://github.com/bellmano/FlappyASCII/issues).
 
 ## :coffee: Buy me a coffee
+
 Donations are welcome to appreciate my work and to keep this project alive, but isn't required at all.
 
 <a href="https://ko-fi.com/bellmano"><img src="img/bellmano-kofi.jpg" width="50%"></a>
