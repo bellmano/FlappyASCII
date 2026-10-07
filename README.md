@@ -26,15 +26,23 @@ A simple Flappy Bird game rendered entirely with ASCII characters. This project 
 
 This game is designed to be easily hosted on GitHub Pages. Click [here](https://bellmano.github.io/FlappyASCII) to play the game!
 
-## :test_tube: Running Tests
+## :test_tube: Local Development and Testing
 
-To run the tests and view coverage:
+To run the website locally:
 
-1. Install the required dev dependency:
+1. Install the dependencies:
    ```powershell
    npm install
    ```
-2. Run the test coverage script:
+2. Start the development server:
+   ```powershell
+   npm run dev
+   ```
+3. Open the local URL printed in the terminal.
+
+To run the tests and view coverage:
+
+1. Run the test coverage script:
    ```powershell
    npm run test:coverage
    ```
