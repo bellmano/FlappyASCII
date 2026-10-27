@@ -10,6 +10,8 @@
   --button-bg: #333;
   --button-text: #fff;
   --button-hover: #555;
+  --transition-duration: 0.3s;
+  --short-transition-duration: 0.2s;
 }
 
 [data-theme="light"] {
@@ -50,8 +52,8 @@ body {
   min-height: 100vh;
   color: var(--text-color);
   transition:
-    background-color 0.3s,
-    color 0.3s;
+    background-color var(--transition-duration),
+    color var(--transition-duration);
 }
 
 .container {
@@ -82,8 +84,8 @@ h1 {
   align-items: center;
   justify-content: center;
   transition:
-    background-color 0.3s,
-    transform 0.2s;
+    background-color var(--transition-duration),
+    transform var(--short-transition-duration);
   z-index: 1000;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
@@ -105,7 +107,7 @@ h1 {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   display: flex;
   justify-content: center;
-  transition: background-color 0.3s;
+  transition: background-color var(--transition-duration);
   max-width: fit-content;
 }
 
@@ -123,9 +125,9 @@ h1 {
   box-sizing: content-box;
   border: 2px solid var(--border-color);
   transition:
-    background-color 0.3s,
-    color 0.3s,
-    border-color 0.3s;
+    background-color var(--transition-duration),
+    color var(--transition-duration),
+    border-color var(--transition-duration);
   text-align: left;
   font-size: 14px;
   letter-spacing: normal;
@@ -136,7 +138,7 @@ h1 {
   padding: 10px;
   background-color: var(--instructions-bg);
   border-radius: 5px;
-  transition: background-color 0.3s;
+  transition: background-color var(--transition-duration);
 }
 
 .instructions p {
@@ -147,7 +149,7 @@ footer {
   margin-top: 30px;
   color: var(--footer-color);
   font-size: 0.8em;
-  transition: color 0.3s;
+  transition: color var(--transition-duration);
   text-align: center;
   padding: 30px 20px;
 }
@@ -174,9 +176,9 @@ footer p {
 .linkedin-link {
   color: var(--footer-color);
   transition:
-    color 0.3s ease,
-    transform 0.3s ease,
-    background-color 0.3s ease;
+    color var(--transition-duration) ease,
+    transform var(--transition-duration) ease,
+    background-color var(--transition-duration) ease;
   display: flex;
   align-items: center;
   text-decoration: none;
@@ -195,7 +197,7 @@ footer p {
 .linkedin-icon {
   width: 20px;
   height: 20px;
-  transition: transform 0.3s ease;
+  transition: transform var(--transition-duration) ease;
 }
 
 .github-link:hover .github-icon,
@@ -204,9 +206,8 @@ footer p {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    transition-duration: 0.01ms !important;
+  :root {
+    --transition-duration: 0.01ms;
+    --short-transition-duration: 0.01ms;
   }
 }
