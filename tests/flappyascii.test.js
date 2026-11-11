@@ -1,9 +1,5 @@
-// Polyfill for TextEncoder in Node.js (required by jsdom)
-const { TextEncoder, TextDecoder } = require("util");
-global.TextEncoder = TextEncoder;
-global.TextDecoder = TextDecoder;
-
-const { JSDOM } = require("jsdom");
+import { JSDOM } from "jsdom";
+import { vi } from "vitest";
 
 // Mock localStorage (stable + controllable across isolateModules)
 const localStorageMock = (() => {
@@ -23,31 +19,25 @@ const localStorageMock = (() => {
 })();
 Object.defineProperty(global, "localStorage", { value: localStorageMock });
 
-// Mock window.crypto.getRandomValues
-global.crypto = {
-  getRandomValues: (arr) => {
-    arr[0] = Math.floor(Math.random() * 0xffffffff);
-    return arr;
-  },
-};
-
 let flappyascii;
 
-beforeAll(() => {
-  flappyascii = require("../src/flappyascii.js");
+beforeEach(async () => {
+  const dom = new JSDOM('<!DOCTYPE html><div id="game-screen"></div>');
+  vi.stubGlobal("document", dom.window.document);
+  vi.stubGlobal("window", dom.window);
+  vi.resetModules();
+  flappyascii = (await import("../src/flappyascii.js")).default;
+  flappyascii.gameScreen = document.getElementById("game-screen");
 });
 
-beforeEach(() => {
-  const dom = new JSDOM('<!DOCTYPE html><div id="game-screen"></div>');
-  global.document = dom.window.document;
-  global.window = dom.window;
-  flappyascii.gameScreen = document.getElementById("game-screen");
+afterEach(() => {
+  vi.unstubAllGlobals();
 });
 
 describe("FlappyASCII (minimal coverage suite)", () => {
   beforeEach(() => {
     flappyascii.resetGame();
-    global.requestAnimationFrame = jest.fn();
+    global.requestAnimationFrame = vi.fn();
     if (typeof localStorage.clear === "function") localStorage.clear();
   });
 
@@ -229,7 +219,7 @@ describe("FlappyASCII (minimal coverage suite)", () => {
     flappyascii.gameRunning = true;
     flappyascii.gameStarted = false;
     const spaceEvent = new KeyboardEvent("keydown", { code: "Space" });
-    Object.defineProperty(spaceEvent, "preventDefault", { value: jest.fn() });
+    Object.defineProperty(spaceEvent, "preventDefault", { value: vi.fn() });
     document.dispatchEvent(spaceEvent);
     expect(flappyascii.gameStarted).toBe(true);
     expect(flappyascii.bird.velocity).toBe(flappyascii.FLAP_STRENGTH);
@@ -239,7 +229,7 @@ describe("FlappyASCII (minimal coverage suite)", () => {
     flappyascii.bird.velocity = 0;
     const spaceWhileStopped = new KeyboardEvent("keydown", { code: "Space" });
     Object.defineProperty(spaceWhileStopped, "preventDefault", {
-      value: jest.fn(),
+      value: vi.fn(),
     });
     document.dispatchEvent(spaceWhileStopped);
     expect(flappyascii.bird.velocity).toBe(0);
@@ -276,44 +266,44 @@ describe("FlappyASCII (minimal coverage suite)", () => {
     expect(global.gameScreen).toBe(mockEl);
   });
 
-  test("covers init() branches (saved high score present/absent, element present/missing)", () => {
+  test("covers init() branches (saved high score present/absent, element present/missing)", async () => {
     // saved high score present + game-screen exists
-    jest.isolateModules(() => {
+    vi.resetModules();
+    {
       const dom = new JSDOM(
         '<!DOCTYPE html><html><body><div id="game-screen"></div></body></html>',
       );
-      global.window = dom.window;
-      global.document = dom.window.document;
-      global.requestAnimationFrame = jest.fn();
+      vi.stubGlobal("window", dom.window);
+      vi.stubGlobal("document", dom.window.document);
+      global.requestAnimationFrame = vi.fn();
       localStorage.setItem("flappyBirdHighScore", "123");
-      const mod = require("../src/flappyascii.js");
+      const mod = (await import("../src/flappyascii.js")).default;
       const originalGet = document.getElementById;
-      document.getElementById = jest.fn().mockReturnValue({ textContent: "" });
+      document.getElementById = vi.fn().mockReturnValue({ textContent: "" });
       mod.init();
       expect(mod.highScore).toBe(123);
       expect(mod.gameScreen.textContent).toContain("Score: 0");
       document.getElementById = originalGet;
-    });
+    }
 
     // no saved high score + missing element logs error via load handler
-    jest.isolateModules(() => {
+    vi.resetModules();
+    {
       const dom = new JSDOM(
         '<!DOCTYPE html><html><body><div id="other"></div></body></html>',
       );
-      global.window = dom.window;
-      global.document = dom.window.document;
-      const rafMock = jest.fn();
+      vi.stubGlobal("window", dom.window);
+      vi.stubGlobal("document", dom.window.document);
+      const rafMock = vi.fn();
       global.requestAnimationFrame = rafMock;
       window.requestAnimationFrame = rafMock;
       if (typeof localStorage.clear === "function") localStorage.clear();
 
-      const errorSpy = jest
-        .spyOn(console, "error")
-        .mockImplementation(() => {});
-      require("../src/flappyascii.js");
+      const errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+      await import("../src/flappyascii.js");
       window.dispatchEvent(new window.Event("load"));
       expect(errorSpy).toHaveBeenCalledWith("Game screen element not found!");
       errorSpy.mockRestore();
-    });
+    }
   });
 });
