@@ -1,11 +1,11 @@
-const script = require("../src/script.js");
+import script from "../src/script.js";
 
 describe("Theme switching script", () => {
   test("covers all branches with minimal setup", () => {
     const themeToggleMock = {
       innerHTML: "",
-      appendChild: jest.fn(),
-      addEventListener: jest.fn(),
+      appendChild: vi.fn(),
+      addEventListener: vi.fn(),
     };
 
     const htmlElementMock = {
@@ -15,16 +15,16 @@ describe("Theme switching script", () => {
     };
 
     const documentWithCreateElement = {
-      createElement: jest.fn(() => ({ className: "" })),
+      createElement: vi.fn(() => ({ className: "" })),
     };
 
     const localStorageMock = {
-      getItem: jest.fn(),
-      setItem: jest.fn(),
+      getItem: vi.fn(),
+      setItem: vi.fn(),
     };
 
     const windowWithUpdate = {
-      updateGameColors: jest.fn(),
+      updateGameColors: vi.fn(),
     };
 
     // savedTheme branch + btn branch
@@ -52,7 +52,7 @@ describe("Theme switching script", () => {
     expect(windowWithUpdate.updateGameColors).toHaveBeenCalled();
 
     // updateGameColors=false branch + currentTheme==='dark' branch in ternary
-    script.toggleTheme(htmlElementMock, jest.fn(), localStorageMock, {});
+    script.toggleTheme(htmlElementMock, vi.fn(), localStorageMock, {});
 
     // savedTheme=false branch
     localStorageMock.getItem.mockReturnValueOnce(null);
@@ -88,7 +88,7 @@ describe("Theme switching script", () => {
     ).not.toThrow();
 
     // toggleTheme() early return when dataset is missing
-    const updateIconSpy = jest.fn();
+    const updateIconSpy = vi.fn();
     script.toggleTheme({}, updateIconSpy, localStorageMock, {});
     expect(updateIconSpy).not.toHaveBeenCalled();
 
@@ -101,7 +101,7 @@ describe("Theme switching script", () => {
     expect(() => script.updateThemeIcon("dark", undefined, {})).not.toThrow();
 
     // document.createElement fallback branch
-    const themeToggleNoDoc = { innerHTML: "", appendChild: jest.fn() };
+    const themeToggleNoDoc = { innerHTML: "", appendChild: vi.fn() };
     script.updateThemeIcon("dark", themeToggleNoDoc, {});
     expect(themeToggleNoDoc.appendChild).toHaveBeenCalledWith({
       className: "fas fa-sun",
@@ -115,14 +115,13 @@ describe("Theme switching script", () => {
     expect(() => script.updateThemeIcon("dark", undefined, null)).not.toThrow();
 
     // Cover updateThemeIcon() branch where globalThis.document is nullish
-    const originalDocument = globalThis.document;
+    vi.stubGlobal("document", undefined);
     try {
-      globalThis.document = undefined;
       expect(() =>
         script.updateThemeIcon("dark", themeToggleMock, undefined),
       ).not.toThrow();
     } finally {
-      globalThis.document = originalDocument;
+      vi.unstubAllGlobals();
     }
 
     // Cover initThemeToggle() branches where doc is null (btn lookup + documentElement fallback)
@@ -138,8 +137,8 @@ describe("Theme switching script", () => {
 
     // Cover initThemeToggle() branch where btn is resolved via doc.getElementById
     const docWithButtonLookup = {
-      getElementById: jest.fn(() => themeToggleMock),
-      createElement: jest.fn(() => ({ className: "" })),
+      getElementById: vi.fn(() => themeToggleMock),
+      createElement: vi.fn(() => ({ className: "" })),
       documentElement: { dataset: { theme: "dark" } },
     };
     localStorageMock.getItem.mockReturnValueOnce(null);
@@ -161,9 +160,8 @@ describe("Theme switching script", () => {
     ).not.toThrow();
 
     // Cover initThemeToggle() branch where globalThis.document is nullish (doc resolves to null)
-    const originalDocument2 = globalThis.document;
+    vi.stubGlobal("document", undefined);
     try {
-      globalThis.document = undefined;
       expect(() =>
         script.initThemeToggle(
           undefined,
@@ -174,7 +172,7 @@ describe("Theme switching script", () => {
         ),
       ).not.toThrow();
     } finally {
-      globalThis.document = originalDocument2;
+      vi.unstubAllGlobals();
     }
 
     document.documentElement.dataset.theme = "dark";
